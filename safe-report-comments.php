@@ -108,8 +108,11 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			
 			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
 
-			if ( $this->_auto_init ) 
-				add_filter( 'comment_reply_link', array( $this, 'add_flagging_link' ), 15, 4 );
+			if ( $this->_auto_init ) {
+    			add_filter( 'comment_reply_link', array( $this, 'add_flagging_link' ), 15, 4 );
+    			add_filter( 'comment_text', array( $this, 'add_flagging_link_last_comment' ), 15, 2 );
+            }
+				
 			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
 				
 			add_action( 'template_redirect', array( $this, 'add_test_cookie' ) ); // need to do this at template_redirect because is_feed isn't available yet
@@ -466,6 +469,38 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		
 			$comment_reply_link =  $matches[1][0] . $matches[2][0] . $matches[4][0] . $matches[5][0] . '<span class="safe-comments-report-link">' . $this->get_flagging_link( $comment->comment_ID, $post->ID ) . '</span>' . $matches[6][0];
 			return apply_filters( 'safe_report_comments_comment_reply_link', $comment_reply_link );
+		}
+		
+		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
+    		global $wpdb;
+    		$last_comment = wp_cache_get( 'epoch_comment_last_comment_' . $comment->comment_ID );
+    		
+    		if ( !$last_comment ) {
+        		$comments = false;
+        		$query = "select * from {$wpdb->comments} where comment_ID = %d AND comment_parent <> 0";
+        		$query = $wpdb->prepare( $query, $comment->comment_ID );
+        		$comments = $wpdb->get_results( $query  );
+        		if ( $comments && !empty( $comments ) ) {
+            		$child_check_query = "select * from {$wpdb->comments} where comment_parent = %d";
+            		$child_check_query = $wpdb->prepare( $child_check_query, $comment->comment_ID );
+            		$child_check_query_results = $wpdb->get_results( $child_check_query );
+            		
+            		if ( empty( $child_check_query_results ) ) {
+                		$last_comment = true;
+                		wp_cache_set( 'epoch_comment_last_comment_' . $comment->comment_ID, true, 120 );
+                    }
+                } else {
+                    wp_cache_set( 'epoch_comment_last_comment_' . $comment->comment_ID, false, 120 );
+                    $last_comment = false;   
+                }
+            }
+    		
+           
+            if ( $last_comment ) {
+                $html = $comment_text . sprintf(  '<ul class="epoch-comment-actions last-thread"><li class="epoch-reply" data-comment-id="%1$d"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">Report comment</a></span></span></li></ul>', $comment->comment_ID, $comment->comment_post_ID );
+                return $html;
+            }
+            return $comment_text;
 		}
 		
 		/*
