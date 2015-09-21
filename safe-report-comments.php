@@ -75,7 +75,6 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Allow comment flagging' ), array( $this, 'comment_flag_enable' ), 'discussion', 'default' );
 			register_setting( 'discussion', $this->_plugin_prefix . '_enabled' );
 			
-
 			if ( ! $this->is_enabled() )
 				return;
 				
