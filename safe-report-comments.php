@@ -72,9 +72,14 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 
 			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Allow comment flagging' ), array( $this, 'comment_flag_enable' ), 'discussion', 'default' );
 			register_setting( 'discussion', $this->_plugin_prefix . '_enabled' );
+			
 
 			if ( ! $this->is_enabled() )
 				return;
+				
+                
+            add_settings_field( $this->_plugin_prefix . '_admin_notification', __( 'Administrator notifications' ), array( $this, 'comment_admin_notification_setting' ), 'discussion', 'default' );
+            register_setting( 'discussion', $this->_plugin_prefix . '_admin_notification' );
 
 			add_settings_field( $this->_plugin_prefix . '_threshold', __( 'Flagging threshold' ), array( $this, 'comment_flag_threshold' ), 'discussion', 'default' );
 			register_setting( 'discussion', $this->_plugin_prefix . '_threshold', array( $this, 'check_threshold' ) );
@@ -184,8 +189,21 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			$enabled = $this->is_enabled();
 			?>
 			<label for="<?php echo $this->_plugin_prefix; ?>_enabled">
-				<input name="<?php echo $this->_plugin_prefix; ?>_enabled" id="<?php echo $this->_plugin_prefix; ?>_enabled" type="checkbox" value="1" <?php if ( $enabled === true ) echo ' checked="checked"'; ?> />   
+				<input name="<?php echo $this->_plugin_prefix; ?>_enabled" id="<?php echo $this->_plugin_prefix; ?>_enabled" type="checkbox" value="1" <?php checked( true, $enabled ); ?> />   
 				<?php _e( "Allow your visitors to flag a comment as inappropriate." ); ?>
+			</label>
+			<?php
+		}
+		
+		/*
+		 * Callback for settings field
+		 */
+		public function comment_admin_notification_setting() {
+			$enabled = $this->is_admin_notification_enabled();
+			?>
+			<label for="<?php echo $this->_plugin_prefix; ?>_admin_notification">
+				<input name="<?php echo $this->_plugin_prefix; ?>_admin_notification" id="<?php echo $this->_plugin_prefix; ?>_admin_notification" type="checkbox" value="1" <?php checked( true, $enabled ); ?>  />   
+				<?php _e( "Allow administrators to receive an email when a comment has reached a threshold." ); ?>
 			</label>
 			<?php
 		}
@@ -208,6 +226,18 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 */
 		public function is_enabled() {
 			$enabled = get_option( $this->_plugin_prefix . '_enabled' );
+			if ( $enabled == 1 )
+				$enabled = true;
+			else 
+				$enabled = false;
+			return $enabled;
+		}
+		
+		/* 
+		 * Check if the functionality is enabled or not
+		 */
+		public function is_admin_notification_enabled() {
+			$enabled = get_option( $this->_plugin_prefix . '_admin_notification', 1 );
 			if ( $enabled == 1 )
 				$enabled = true;
 			else 
@@ -468,5 +498,3 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 
 if ( !defined( 'no_autostart_safe_report_comments' ) )
 	$safe_report_comments = new Safe_Report_Comments;
-
-?>
