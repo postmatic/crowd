@@ -109,7 +109,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
 
 			if ( $this->_auto_init ) 
-				add_filter( 'comment_reply_link', array( $this, 'add_flagging_link' ) );
+				add_filter( 'comment_reply_link', array( $this, 'add_flagging_link' ), 15, 4 );
 			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
 				
 			add_action( 'template_redirect', array( $this, 'add_test_cookie' ) ); // need to do this at template_redirect because is_feed isn't available yet
@@ -460,11 +460,11 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 * If you want to control the placement on your own define no_autostart_safe_report_comments in your functions.php file and initialize the class
 		 * with $safe_report_comments = new Safe_Report_Comments( $auto_init = false );
 		 */
-		public function add_flagging_link( $comment_reply_link ) {
+		public function add_flagging_link( $comment_reply_link, $args = array(), $comment, $post ) {
 			if ( !preg_match_all( '#^(.*)(<a.+class=["|\']comment-(reply|login)-link["|\'][^>]+>)(.+)(</a>)(.*)$#msiU', $comment_reply_link, $matches ) ) 
 				return '<!-- safe-comments add_flagging_link not matching -->' . $comment_reply_link;
 		
-			$comment_reply_link =  $matches[1][0] . $matches[2][0] . $matches[4][0] . $matches[5][0] . '<span class="safe-comments-report-link">' . $this->get_flagging_link() . '</span>' . $matches[6][0];
+			$comment_reply_link =  $matches[1][0] . $matches[2][0] . $matches[4][0] . $matches[5][0] . '<span class="safe-comments-report-link">' . $this->get_flagging_link( $comment->comment_ID, $post->ID ) . '</span>' . $matches[6][0];
 			return apply_filters( 'safe_report_comments_comment_reply_link', $comment_reply_link );
 		}
 		
