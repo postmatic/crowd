@@ -111,8 +111,8 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
 
 			if ( $this->_auto_init ) {
-    			add_filter( 'comment_reply_link', array( $this, 'add_flagging_link' ), 15, 4 );
-    			add_filter( 'comment_text', array( $this, 'add_flagging_link_last_comment' ), 15, 2 );
+    			add_filter( 'comment_reply_link', array( &$this, 'add_flagging_link' ), 15, 4 );
+    			add_filter( 'comment_text', array( &$this, 'add_flagging_link_last_comment' ), 15, 2 );
             }
 				
 			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
@@ -476,6 +476,9 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		
 		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
     		global $wpdb;
+    		ob_start();
+    		var_dump( $this->comment_ids );
+    		return ob_get_clean();
     		if ( in_array( $comment->comment_ID, $this->comment_ids ) ) {
         	    return $comment_text;	
             }
