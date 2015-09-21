@@ -437,7 +437,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		/* 
 		 * Output Link to report a comment
 		 */
-		public function get_flagging_link( $comment_id='', $result_id='', $text='Report comment' ) {
+		public function get_flagging_link( $comment_id='', $result_id='', $text='Report' ) {
 			global $in_comment_loop;
 			if ( empty( $comment_id ) && !$in_comment_loop ) {
 				return __( 'Wrong usage of print_flagging_link().' );
