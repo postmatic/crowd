@@ -500,38 +500,15 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		
 		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
     		if ( $this->is_admin() ) return $comment_text;
-    		global $wpdb;
-    		if ( in_array( $comment->comment_ID, $this->comment_ids ) ) {
-        	    return $comment_text;	
-            }
-    		$last_comment = wp_cache_get( 'epoch_comment_last_comment_' . $comment->comment_ID );
+    		global $wpdb, $comment_depth;
+    		$max_depth = (int)get_option( 'thread_comments_depth', 1 );
+
     		
-    		if ( !$last_comment ) {
-        		$comments = false;
-        		$query = "select * from {$wpdb->comments} where comment_ID = %d AND comment_parent <> 0";
-        		$query = $wpdb->prepare( $query, $comment->comment_ID );
-        		$comments = $wpdb->get_results( $query  );
-        		if ( $comments && !empty( $comments ) ) {
-            		$child_check_query = "select * from {$wpdb->comments} where comment_parent = %d";
-            		$child_check_query = $wpdb->prepare( $child_check_query, $comment->comment_ID );
-            		$child_check_query_results = $wpdb->get_results( $child_check_query );
-            		
-            		if ( empty( $child_check_query_results ) ) {
-                		$last_comment = true;
-                		wp_cache_set( 'epoch_comment_last_comment_' . $comment->comment_ID, true, 120 );
-                    }
-                } else {
-                    wp_cache_set( 'epoch_comment_last_comment_' . $comment->comment_ID, false, 120 );
-                    $last_comment = false;   
-                }
-            }
-    		
-           
-            if ( $last_comment ) {
-                $html = $comment_text . sprintf(  '<ul class="epoch-comment-actions last-thread"><li class="epoch-reply" data-comment-id="%1$d"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">Report comment</a></span></span></li></ul>', $comment->comment_ID, $comment->comment_post_ID );
+            if ( $max_depth == $comment_depth ) {
+        		$html = $comment_text . sprintf(  '<div class="reply"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">Report comment</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID );
                 return $html;
-            }
-            return $comment_text;
+    		}
+    		return $comment_text;
 		}
 		
 		/*
