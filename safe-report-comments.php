@@ -20,6 +20,8 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		private $_auto_init = true;
 		private $_storagecookie = 'sfrc_flags';
 		
+		private $comment_ids = array();
+		
 		public $plugin_url = false;
 		
 		public $thank_you_message = 'Thank you for your feedback. We will look into it.';
@@ -468,11 +470,15 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 				return '<!-- safe-comments add_flagging_link not matching -->' . $comment_reply_link;
 		
 			$comment_reply_link =  $matches[1][0] . $matches[2][0] . $matches[4][0] . $matches[5][0] . '<span class="safe-comments-report-link">' . $this->get_flagging_link( $comment->comment_ID, $post->ID ) . '</span>' . $matches[6][0];
+			$this->comment_ids[] = $comment->comment_ID;
 			return apply_filters( 'safe_report_comments_comment_reply_link', $comment_reply_link );
 		}
 		
 		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
     		global $wpdb;
+    		if ( in_array( $comment->comment_ID, $this->comment_ids ) ) {
+        	    return $comment_text;	
+            }
     		$last_comment = wp_cache_get( 'epoch_comment_last_comment_' . $comment->comment_ID );
     		
     		if ( !$last_comment ) {
