@@ -476,9 +476,6 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		
 		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
     		global $wpdb;
-    		ob_start();
-    		var_dump( $this->comment_ids );
-    		return ob_get_clean();
     		if ( in_array( $comment->comment_ID, $this->comment_ids ) ) {
         	    return $comment_text;	
             }
