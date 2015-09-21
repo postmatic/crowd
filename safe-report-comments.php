@@ -412,14 +412,14 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 * Ajax callback to flag/report a comment
 		 */
 		public function flag_comment() {		
-			if ( (int) $_REQUEST[ 'comment_id' ] != $_REQUEST[ 'comment_id' ] || empty( $_REQUEST[ 'comment_id' ] ) )
+			if ( isset( $_REQUEST[ 'comment_id' ] ) && (int) $_REQUEST[ 'comment_id' ] != $_REQUEST[ 'comment_id' ] || empty( $_REQUEST[ 'comment_id' ] ) )
 				$this->cond_die( __( $this->invalid_values_message ) );
 			
 			$comment_id = (int) $_REQUEST[ 'comment_id' ];
 			if ( $this->already_flagged( $comment_id ) )
 				$this->cond_die( __( $this->already_flagged_message ) );
 				
-			$nonce = $_REQUEST[ 'sc_nonce' ];
+			$nonce = isset( $_REQUEST[ 'sc_nonce' ] ) ? $_REQUEST[ 'sc_nonce' ] : '';
 			// checking if nonces help
 			if ( ! wp_verify_nonce( $nonce, $this->_plugin_prefix . '_' . $this->_nonce_key ) ) 
 				$this->cond_die( __( $this->invalid_nonce_message ) );
