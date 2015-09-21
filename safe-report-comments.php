@@ -24,7 +24,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		
 		public $plugin_url = false;
 		
-		public $thank_you_message = 'Thank you for your feedback. We will look into it.';
+		public $thank_you_message = 'Reported.';
 		public $invalid_nonce_message = 'It seems you already reported this comment. <!-- nonce invalid -->';
 		public $invalid_values_message = 'Cheating huh? <!-- invalid values -->';
 		public $already_flagged_message = 'It seems you already reported this comment. <!-- already flagged -->';
