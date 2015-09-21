@@ -108,6 +108,8 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			add_action( 'wp_ajax_safe_report_comments_flag_comment', array( $this, 'flag_comment' ) );
 			add_action( 'wp_ajax_nopriv_safe_report_comments_flag_comment', array( $this, 'flag_comment' ) );
 			
+			add_action( 'safe_report_comments_mark_flagged', array( $this, 'admin_notification' ) );
+			
 			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
 
 			if ( $this->_auto_init ) {
@@ -249,6 +251,20 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 				$enabled = false;
 			return $enabled;
 		}
+		
+		public function admin_notification( $comment_id ) {
+    		if ( ! $this->is_admin_notification_enabled() ) return;
+    		
+    		$comment = get_comment( $comment_id );
+    		
+    		$admin_email = get_option( 'admin_email' );
+    		$subject = sprintf( '%s - Comment ID %d - %s', esc_html( get_bloginfo( 'site' ) ), absint( $comment_id ), esc_html__( 'Has been flagged by users and set to moderation' ) );
+    		$headers = sprintf( 'From: %s <%s>', esc_html( get_bloginfo( 'site' ) ), get_option( 'admin_email' ) ) . "\r\n\r\n";
+    		$message = 'Users of your site have flagged a comment and it has been sent to moderation.' . "\r\n\r\n";
+    		$message .= 'You are welcome to view the comment yourself at your earliest convenience.' . "\r\n\r\n";
+    		$message .= esc_url( add_query_arg( array( 'action' => 'editcomment', 'c' => absint( $comment_id ) ), admin_url( 'comment.php' ) ) );
+    		wp_mail( $admin_email, $subject, $message, $headers );
+        }
 		
 		/* 
 		 * Validate threshold, callback for settings field
@@ -460,12 +476,21 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			
 		}
 		
+		private function is_admin() {
+    	    if ( ( current_user_can( 'manage_network' ) || current_user_can( 'manage_options' ) || current_user_can( 'moderate_comments' ) ) ) {	
+        	    return true;
+            } else {
+                return false;   
+            }
+        }
+		
 		/*
 		 * Callback function to automatically hook in the report link after the comment reply link. 
 		 * If you want to control the placement on your own define no_autostart_safe_report_comments in your functions.php file and initialize the class
 		 * with $safe_report_comments = new Safe_Report_Comments( $auto_init = false );
 		 */
 		public function add_flagging_link( $comment_reply_link, $args = array(), $comment, $post ) {
+    		if ( $this->is_admin() ) return $comment_reply_link;
 			if ( !preg_match_all( '#^(.*)(<a.+class=["|\']comment-(reply|login)-link["|\'][^>]+>)(.+)(</a>)(.*)$#msiU', $comment_reply_link, $matches ) ) 
 				return '<!-- safe-comments add_flagging_link not matching -->' . $comment_reply_link;
 		
@@ -475,6 +500,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		}
 		
 		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
+    		if ( $this->is_admin() ) return $comment_text;
     		global $wpdb;
     		if ( in_array( $comment->comment_ID, $this->comment_ids ) ) {
         	    return $comment_text;	
