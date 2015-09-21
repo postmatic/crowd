@@ -1,4 +1,4 @@
-=== Crowd Control - Comment moderation decentralized ===
+=== Crowd Control by Postmatic - Comment moderation decentralized ===
 Contributors: postmatic, ronalfy
 Tags: moderation, comment moderation, reporting, inappropriate, flagging, flag, comments, report comments, report, inappropriate, spam
 Donate link: https://gopostmatic.com
