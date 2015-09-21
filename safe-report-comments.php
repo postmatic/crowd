@@ -262,7 +262,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
     		$headers = sprintf( 'From: %s <%s>', esc_html( get_bloginfo( 'site' ) ), get_option( 'admin_email' ) ) . "\r\n\r\n";
     		$message = 'Users of your site have flagged a comment and it has been sent to moderation.' . "\r\n\r\n";
     		$message .= 'You are welcome to view the comment yourself at your earliest convenience.' . "\r\n\r\n";
-    		$message .= esc_url( add_query_arg( array( 'action' => 'editcomment', 'c' => absint( $comment_id ) ), admin_url( 'comment.php' ) ) );
+    		$message .= esc_url_raw( add_query_arg( array( 'action' => 'editcomment', 'c' => absint( $comment_id ) ), admin_url( 'comment.php' ) ) );
     		wp_mail( $admin_email, $subject, $message, $headers );
         }
 		
