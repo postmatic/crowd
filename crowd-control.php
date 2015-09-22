@@ -221,7 +221,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 * Callback for settings field
 		 */		
 		public function comment_flag_threshold() {
-			$threshold = (int) get_option( $this->_plugin_prefix . '_threshold', 5 );
+			$threshold = (int) get_option( $this->_plugin_prefix . '_threshold', 3 );
 			?>
 			<label for="<?php echo $this->_plugin_prefix; ?>_threshold">
 				<input size="2" name="<?php echo $this->_plugin_prefix; ?>_threshold" id="<?php echo $this->_plugin_prefix; ?>_threshold" type="text" value="<?php echo $threshold; ?>" />   
