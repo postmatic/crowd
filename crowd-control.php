@@ -442,8 +442,9 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			
 		}
 		
-		public function print_flagging_link( $comment_id='', $result_id='', $text='Report comment' ) {
-			echo $this->get_flagging_link( $comment_id='', $result_id='', $text='Report comment' );
+		public function print_flagging_link( $comment_id='', $result_id='', $text = '' ) {
+    		$text = __( 'Report comment', 'crowd-control' );
+			echo $this->get_flagging_link( $comment_id='', $result_id='', $text );
 		}
 		
 		/* 
