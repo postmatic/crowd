@@ -80,7 +80,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		public function __destruct() {
 
 		}
-
+        
+        /**
+    	 * action_enqueue_scripts - Enqueue scripts
+    	 * 
+    	 * Enqueue ajax scripts
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @users wp_enqueue_scripts
+    	 *
+    	 */
 		public function action_enqueue_scripts() {
 
 			// Use home_url() if domain mapped to avoid cross-domain issues
@@ -105,18 +115,30 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'pmcc_ajax', $localize_script_vars ); // slightly dirty but needed due to possible problems with mapped domains
 		}
 		
-		/* 
-		 * Add admin error messages
-		 */
+		/**
+    	 * add_admin_notice - Add admin error messages
+    	 * 
+    	 * Add admin error messages
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @param string $message The admin message
+    	 *
+    	 */
 		protected function add_admin_notice( $message ) {
 			$this->_admin_notices[] = $message;
 			set_transient( $this->_plugin_prefix . '_notices', $this->_admin_notices, 3600 );
 		}
-
-		/*
-		 * Add necessary header scripts 
-		 * Currently only used for admin notices
-		 */
+		 
+		 /**
+    	 * admin_header - Add admin error notifications
+    	 * 
+    	 * Add admin error notifications
+    	 *
+    	 * @since 1.0
+    	 *
+    	 *
+    	 */
 		public function admin_header() {
 			// print admin notice in case of notice strings given
 			if ( !empty( $this->_admin_notices ) ) {
@@ -132,14 +154,33 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			
 		}
 		
-		/*
-		 * Callback function to add the report counter to comments screen. Remove action manage_edit-comments_columns if not desired
-		 */
+		 
+        /**
+    	 * admin_header - Add reported column to admin
+    	 * 
+    	 * Callback function to add the report counter to comments screen. Remove action manage_edit-comments_columns if not desired
+    	 *
+    	 * @since 1.0
+    	 *
+    	 *
+    	 */
 		public function add_comment_reported_column( $comment_columns ) {
 			$comment_columns['comment_reported'] = _x('Reported', 'column name');
 			return $comment_columns;
 		}
 		
+		/**
+    	 * add_flagging_link_comment - Add report link to comment content
+    	 * 
+    	 * Add report link to comment content
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @param string $comment_text
+    	 * @param object $comment
+    	 *
+    	 * @returns string $comment_test
+    	 */
 		public function add_flagging_link_comment( $comment_text, $comment = '' ) {
     		if ( $this->is_admin() || $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
     		
@@ -149,21 +190,16 @@ if ( !class_exists( "Crowd_Control" ) ) {
     		return $html;
 		}
 		
-		/*
-		 * Callback function to automatically hook in the report link after the comment reply link. 
-		 * If you want to control the placement on your own define no_autostart_safe_report_comments in your functions.php file and initialize the class
-		 * with $safe_report_comments = new Crowd_Control( $auto_init = false );
-		 */
-		public function add_flagging_link( $comment_reply_link, $args = array(), $comment, $post ) {
-    		if ( $this->is_admin() && $this->already_flagged( $comment->comment_ID ) ) return $comment_reply_link;
-    		
-			if ( !preg_match_all( '#^(.*)(<a.+class=["|\']comment-(reply|login)-link["|\'][^>]+>)(.+)(</a>)(.*)$#msiU', $comment_reply_link, $matches ) ) 
-				return '<!-- safe-comments add_flagging_link not matching -->' . $comment_reply_link;
-		
-			$comment_reply_link =  $matches[1][0] . $matches[2][0] . $matches[4][0] . $matches[5][0] . '<span class="safe-comments-report-link">' . $this->get_flagging_link( $comment->comment_ID, $post->ID ) . '</span>' . $matches[6][0];
-			return apply_filters( 'safe_report_comments_comment_reply_link', $comment_reply_link );
-		}
-		
+		/**
+    	 * admin_notification - Alert admin via email
+    	 * 
+    	 * Alert admin via email when comment has been moderated
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @param int $comment_id
+    	 *
+    	 */
 		public function admin_notification( $comment_id ) {
     		if ( ! $this->is_admin_notification_enabled() ) return;
     		
@@ -178,9 +214,18 @@ if ( !class_exists( "Crowd_Control" ) ) {
     		wp_mail( $admin_email, $subject, $message, $headers );
         }
         
-        /*
-		 * Check if this comment was flagged by the user before
-		 */
+		 
+        /**
+    	 * already_flagged - Check if a commment has already been reported
+    	 * 
+    	 * Check if a commment has already been reported
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @param int $comment_id
+    	 *
+    	 * @returns true if flagged, false if not
+    	 */
 		public function already_flagged( $comment_id ) {
 			// check if cookies are enabled and use cookie store
 			if( isset( $_COOKIE[ 'cc_report_' . $comment_id ] ) && 'true' ==  $_COOKIE[ 'cc_report_' . $comment_id ] ) {
@@ -197,11 +242,15 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		}
 		
 		
-        /* 
-		 * Initialize backend functions
-		 * - register_admin_panel
-		 * - admin_header
-		 */
+        /**
+    	 * backend_init - Add settings screen to discussion settings
+    	 * 
+    	 * Add settings screen to discussion settings
+    	 *
+    	 * @since 1.0
+    	 *
+    	 *
+    	 */
 		public function backend_init() {
 			do_action( 'safe_report_comments_backend_init' );
 
@@ -224,16 +273,37 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			add_action( 'admin_head', array( $this, 'admin_header' ) );
 		}
 		
-		
-		/* 
-		 * Validate threshold, callback for settings field
-		 */
+        
+        /**
+    	 * check_threshold - Validate threshold
+    	 * 
+    	 * Validate threshold, callback for settings field
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @param check_threshold
+    	 *
+    	 * @returns int sanitized threshold
+    	 */
 		public function check_threshold( $value ) {
 			if ( (int) $value <= 0 || (int) $value > 100 )
 				$this->add_admin_notice( __('Please revise your flagging threshold and enter a number between 1 and 100') );
 			return (int) $value;
 		}
 		
+		 /**
+    	 * clean_cookie_data - Clean cookie data
+    	 * 
+    	 * Clean cookie data
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access private
+    	 *
+    	 * @param array $data
+    	 *
+    	 * @returns array Cleaned data
+    	 */
 		private function clean_cookie_data( $data ) {
 			$clean_data = array();
 
@@ -253,6 +323,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		/*
 		 * Callback for settings field
 		 */
+        
+         /**
+    	 * comment_admin_notification_setting - Discussions settiing
+    	 * 
+    	 * Discussions setting
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 */
 		public function comment_admin_notification_setting() {
 			$enabled = $this->is_admin_notification_enabled();
 			?>
@@ -263,9 +344,16 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			<?php
 		}
 		
-		/*
-		 * Callback for settings field
-		 */
+		 /**
+    	 * comment_flag_enable - Discussions settiing
+    	 * 
+    	 * Discussions setting
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 */ 
 		public function comment_flag_enable() {
 			$enabled = $this->is_enabled();
 			?>
@@ -276,9 +364,16 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			<?php
 		}
 		
-		/*
-		 * Callback for settings field
-		 */		
+        /**
+    	 * comment_flag_threshold - Discussions settiing
+    	 * 
+    	 * Discussions setting
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 */ 
 		public function comment_flag_threshold() {
 			$threshold = (int) get_option( $this->_plugin_prefix . '_threshold', 3 );
 			?>
@@ -289,19 +384,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			<?php
 		}
 		
-		/*
-		 * Die() with or without screen based on JS availability
-		 */
-		private function cond_die( $message ) {
-			if ( isset( $_REQUEST['no_js'] ) && true == (boolean) $_REQUEST['no_js'] )
-				wp_die( __( $message ), "Safe Report Comments Notice", array('response' => 200 ) );
-			else
-				die( __( $message ) );
-		}
 		
-		/* 
-		 * Ajax callback to flag/report a comment
-		 */
+		/**
+    	 * flag_comment - Ajax flag comment check
+    	 * 
+    	 * Ajax flag comment check
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 */ 
 		public function flag_comment() {		
 			if ( isset( $_REQUEST[ 'comment_id' ] ) && (int) $_REQUEST[ 'comment_id' ] != $_REQUEST[ 'comment_id' ] || empty( $_REQUEST[ 'comment_id' ] ) ) {
     			    $return[ 'code' ] = 'already_flagged_message';
@@ -341,6 +434,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		/*
 		 * Initialize frontend functions
 		 */
+		 
+        /**
+    	 * frontend_init - Enable actions/filters
+    	 * 
+    	 * Enable actions/filters
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 */ 
 		public function frontend_init() {
 			
 			if ( ! $this->is_enabled() )
@@ -365,9 +469,21 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
 		}
 		
-		/* 
-		 * Output Link to report a comment
-		 */
+        /**
+    	 * get_flagging_link - Return flagging link
+    	 * 
+    	 * Return flagging link
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 * 
+    	 * @param int $comment_id
+    	 * @param int $result_id
+    	 * @param string $text
+    	 *
+    	 * @returns flagging link
+    	 */
 		public function get_flagging_link( $comment_id='', $result_id='', $text='' ) {
 			global $in_comment_loop;
 			if ( empty( $text ) ) {
@@ -408,6 +524,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			
 		}
 		
+		/**
+    	 * is_admin - Whether a user is admin or not and can see comments
+    	 * 
+    	 * Whether a user is admin or not and can see comments
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @returns true if admin, false if not
+    	 */
 		private function is_admin() {
     	    if ( ( current_user_can( 'manage_network' ) || current_user_can( 'manage_options' ) || current_user_can( 'moderate_comments' ) ) ) {	
         	    return true;
@@ -416,9 +543,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
             }
         }
 		
-		/* 
-		 * Check if the functionality is enabled or not
-		 */
+        /**
+    	 * is_admin_notification_enabled - Is the admin notification or not
+    	 * 
+    	 * Is the admin notification or not
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @returns true if yes, false if not
+    	 */
 		public function is_admin_notification_enabled() {
 			$enabled = get_option( $this->_plugin_prefix . '_admin_notification', 1 );
 			if ( $enabled == 1 )
@@ -427,10 +562,18 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				$enabled = false;
 			return $enabled;
 		}
-		
-		/* 
-		 * Check if the functionality is enabled or not
-		 */
+        
+         /**
+    	 * is_enabled - Is the threshold enabled or not
+    	 * 
+    	 *  Is the threshold enabled or not
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @returns true if yes, false if not
+    	 */
 		public function is_enabled() {
 			$enabled = get_option( $this->_plugin_prefix . '_enabled' );
 			if ( $enabled == 1 )
@@ -441,8 +584,22 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		}
 		
 		/* 
-		 * Callback function to handle custom column. remove action manage_comments_custom_column if not desired
+		 * 
 		 */
+		 
+        /**
+    	 * manage_comment_reported_column - Handle custom column
+    	 * 
+    	 * Callback function to handle custom column. remove action manage_comments_custom_column if not desired
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @param string column_name
+    	 * @param int $comment_id
+    	 *
+    	 */
 		public function manage_comment_reported_column( $column_name, $comment_id ) { 
 			switch($column_name) {
 			case 'comment_reported':
@@ -457,19 +614,38 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			}
 		}
 		
-		/*
-		 * Mark a comment as being moderated so it will not be autoflagged again
+		 
+        /**
+    	 * manage_comment_reported_column - Mark a comment as being moderated
+    	 * 
+    	 * Mark a comment as being moderated so it will not be autoflagged again
 		 * called via comment transient from unapproved to approved
-		 */
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @param object $comment
+    	 *
+    	 */
 		public function mark_comment_moderated( $comment ) {
 			if ( isset( $comment->comment_ID ) ) {
 				update_comment_meta( $comment->comment_ID, $this->_plugin_prefix . '_moderated', true );
 			}
 		}
 		
-		/*
-		 * Report a comment and send it to moderation if threshold is reached
-		 */
+        /**
+    	 * mark_flagged - Mark a comment as flagged
+    	 * 
+    	 * Mark a comment has flagged and set transient as a backup
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @param int $comment_id
+    	 *
+    	 */
 		public function mark_flagged( $comment_id ) {
 			$data = array();
 			
@@ -500,10 +676,19 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				wp_set_comment_status( $comment_id, 'hold' );
 			}
 		}
-		
-		/*
-		 * Print a notification / error msg
-		 */
+        
+        /**
+    	 * print_admin_notice - Print admin notification
+    	 * 
+    	 * Print a notification / error msg
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @param int $comment_id
+    	 *
+    	 */
 		public function print_admin_notice() {
 			?><div id="message" class="updated fade"><h3>Safe Comments:</h3><?php
 
@@ -517,22 +702,21 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			delete_transient( $this->_plugin_prefix . '_notices' );
 		}
 		
+		/**
+    	 * print_flagging_link - Print flagging link
+    	 * 
+    	 * Print flagging link
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @param int $comment_id
+    	 *
+    	 */
 		public function print_flagging_link( $comment_id='', $result_id='', $text = '' ) {
     		$text = __( 'Report comment', 'crowd-control' );
 			echo $this->get_flagging_link( $comment_id='', $result_id='', $text );
-		}
-
-		/*
-		 * Helper functions to (un)/serialize cookie values
-		 */
-		private function serialize_cookie( $value ) {
-			$value = $this->clean_cookie_data( $value );
-			return base64_encode( json_encode( $value ) );
-		}
-		
-		private function unserialize_cookie( $value ) {
-			$data = json_decode( base64_decode( $value ) );
-			return $this->clean_cookie_data( $data );
 		}
 		
 	}
