@@ -136,8 +136,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
             }
 				
 			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
-				
-			add_action( 'template_redirect', array( $this, 'add_test_cookie' ) ); // need to do this at template_redirect because is_feed isn't available yet
 		}
 
 		public function action_enqueue_scripts() {
@@ -162,16 +160,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
         		$localize_script_vars[ 'errors' ][ $error_code ] = $this->errors->get_error_message( $error_code );
             }
 			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'pmcc_ajax', $localize_script_vars ); // slightly dirty but needed due to possible problems with mapped domains
-		}
-
-		public function add_test_cookie() {
-			//Set a cookie now to see if they are supported by the browser.
-			// Don't add cookie if it's already set; and don't do it for feeds
-			if( ! is_feed() && ! isset( $_COOKIE[ TEST_COOKIE ] ) ) {
-				@setcookie(TEST_COOKIE, 'WP Cookie check', 0, COOKIEPATH, COOKIE_DOMAIN);
-				if ( SITECOOKIEPATH != COOKIEPATH )
-					@setcookie(TEST_COOKIE, 'WP Cookie check', 0, SITECOOKIEPATH, COOKIE_DOMAIN);
-			}
 		}
 
 		/*
@@ -344,16 +332,11 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		/*
 		 * Check if this comment was flagged by the user before
 		 */
-		public function already_flagged( $comment_id ) {		
-
+		public function already_flagged( $comment_id ) {
 			// check if cookies are enabled and use cookie store
-			if( isset( $_COOKIE[ TEST_COOKIE ] ) ) {
-				if ( isset( $_COOKIE[ $this->_storagecookie ] ) ) {
-					$data = $this->unserialize_cookie( $_COOKIE[ $this->_storagecookie ] );
-					if ( is_array( $data ) && isset( $data[ $comment_id ] ) ) {
-						return true;
-					}
-				}
+			if( isset( $_COOKIE[ 'cc_report_' . $comment_id ] ) && 'true' ==  $_COOKIE[ 'cc_report_' . $comment_id ] ) {
+
+				return true;
 			} 
 			
 			
@@ -522,7 +505,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 * with $safe_report_comments = new Crowd_Control( $auto_init = false );
 		 */
 		public function add_flagging_link( $comment_reply_link, $args = array(), $comment, $post ) {
-    		if ( $this->is_admin() ) return $comment_reply_link;
+    		if ( $this->is_admin() && $this->already_flagged( $comment->comment_ID ) ) return $comment_reply_link;
 			if ( !preg_match_all( '#^(.*)(<a.+class=["|\']comment-(reply|login)-link["|\'][^>]+>)(.+)(</a>)(.*)$#msiU', $comment_reply_link, $matches ) ) 
 				return '<!-- safe-comments add_flagging_link not matching -->' . $comment_reply_link;
 		
@@ -532,7 +515,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		}
 		
 		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
-    		if ( $this->is_admin() ) return $comment_text;
+    		if ( $this->is_admin() && $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
     		global $wpdb, $comment_depth;
     		$max_depth = (int)get_option( 'thread_comments_depth', 1 );
 
