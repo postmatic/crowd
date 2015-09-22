@@ -1,20 +1,23 @@
 <?php
 /*
-Plugin Name: Safe Report Comments
-Plugin Script: safe-report-comments.php
-Plugin URI: http://wordpress.org/extend/plugins/safe-report-comments/
-Description: This script gives visitors the possibility to flag/report a comment as inapproriate. 
-After reaching a threshold the comment is moved to moderation. If a comment is approved once by a moderator future reports will be ignored.
+Plugin Name: Crowd Control by Postmatic
+Plugin Script: crowd-control.php
+Plugin URI: http://wordpress.org/extend/plugins/crowd-control/
+Description: Flag a comment as inappropriate. After a threshold has been reached, comment is moved to moderation and admin is notified.
 Version: 0.4.1
-Author: Thorsten Ott, Daniel Bachhuber, Automattic
-Author URI: http://automattic.com
+Author: Ronald Huereca, Jason Lemieux
+Author URI: https://gopostmatic.com/
+Text Domain: crowd-control
+Domain Path: /languages
+Forked from: http://wordpress.org/extend/plugins/safe-report-comments/
+Original Authors: http://wordpress.org/extend/plugins/safe-report-comments/
 */
 
-if ( !class_exists( "Safe_Report_Comments" ) ) {
+if ( !class_exists( "Crowd_Control" ) ) {
 
-	class Safe_Report_Comments {
+	class Crowd_Control {
 
-		private $_plugin_prefix = 'srcmnt';
+		private $_plugin_prefix = 'pmtcc';
 		private $_admin_notices = array();
 		private $_nonce_key = 'flag_comment_nonce';
 		private $_auto_init = true;
@@ -486,7 +489,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		/*
 		 * Callback function to automatically hook in the report link after the comment reply link. 
 		 * If you want to control the placement on your own define no_autostart_safe_report_comments in your functions.php file and initialize the class
-		 * with $safe_report_comments = new Safe_Report_Comments( $auto_init = false );
+		 * with $safe_report_comments = new Crowd_Control( $auto_init = false );
 		 */
 		public function add_flagging_link( $comment_reply_link, $args = array(), $comment, $post ) {
     		if ( $this->is_admin() ) return $comment_reply_link;
@@ -540,4 +543,4 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 }
 
 if ( !defined( 'no_autostart_safe_report_comments' ) )
-	$safe_report_comments = new Safe_Report_Comments;
+	$safe_report_comments = new Crowd_Control;
