@@ -21,7 +21,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		private $_admin_notices = array();
 		private $_nonce_key = 'flag_comment_nonce';
 		private $_auto_init = true;
-		private $_storagecookie = 'sfrc_flags';
+		private $_storagecookie = 'pmcc_flags';
 		
 		private $errors;
 				
@@ -140,10 +140,12 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			return $comment_columns;
 		}
 		
-		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
-    		if ( $this->is_admin() && $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
+		public function add_flagging_link_comment( $comment_text, $comment = '' ) {
+    		if ( $this->is_admin() || $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
     		
-            $html = $comment_text . sprintf(  '<div class="reply"><span class="pmcc-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">%3$s</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ) );
+    		$nonce = wp_create_nonce( 'pmcc_comment_' . $comment->comment_ID );
+    		
+            $html = $comment_text . sprintf(  '<div class="reply"><span class="pmcc-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'%4$s\', \'%2$d\');">%3$s</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ), $nonce );
     		return $html;
 		}
 		
@@ -186,12 +188,10 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				return true;
 			} 
 			
-			
 			// in case we don't have cookies. fall back to transients, block based on IP/User Agent
-			if ( $transient = get_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ) ) ) {
-				if 	( isset( $transient[ $comment_id ] ) && $transient[ $comment_id ] >= $this->no_cookie_grace ) {
-    			    return true;	
-                }
+			$transient = get_transient( md5( $this->_storagecookie . $comment_id .$_SERVER['REMOTE_ADDR'] ) );
+			if 	($transient ) {
+			    return true;	
             }
 			return false;
 		}
@@ -303,20 +303,37 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 * Ajax callback to flag/report a comment
 		 */
 		public function flag_comment() {		
-			if ( isset( $_REQUEST[ 'comment_id' ] ) && (int) $_REQUEST[ 'comment_id' ] != $_REQUEST[ 'comment_id' ] || empty( $_REQUEST[ 'comment_id' ] ) )
-				$this->cond_die( $this->errors->get_error_message( 'invalid_values_message' ) );
+			if ( isset( $_REQUEST[ 'comment_id' ] ) && (int) $_REQUEST[ 'comment_id' ] != $_REQUEST[ 'comment_id' ] || empty( $_REQUEST[ 'comment_id' ] ) ) {
+    			    $return[ 'code' ] = 'already_flagged_message';
+    			    $return[ 'errors' ] = true;
+    			    wp_send_json( $return );
+    			    exit();
+                }
 			
-			$comment_id = (int) $_REQUEST[ 'comment_id' ];
-			if ( $this->already_flagged( $comment_id ) )
-				$this->cond_die( $this->errors->get_error_message( 'already_flagged_message' ) );
+			$comment_id = absint( $_REQUEST[ 'comment_id' ] );
+			if ( $this->already_flagged( $comment_id ) ) {
+			    $return = array();
+			    $return[ 'code' ] = 'already_flagged_message';
+			    $return[ 'errors' ] = true;
+			    wp_send_json( $return );
+			    exit();
+			 }
 				
 			$nonce = isset( $_REQUEST[ 'sc_nonce' ] ) ? $_REQUEST[ 'sc_nonce' ] : '';
 			// checking if nonces help
-			if ( ! wp_verify_nonce( $nonce, $this->_plugin_prefix . '_' . $this->_nonce_key ) ) 
-				$this->cond_die( $this->errors->get_error_message( 'invalid_nonce_message' ) );
-			else {
+			if ( ! wp_verify_nonce( $nonce, 'pmcc_comment_' . $comment_id  ) ) { 
+    			$return = array();
+    			$return[ 'code' ] = 'invalid_values_message';
+                $return[ 'errors' ] = true;
+                wp_send_json( $return );
+                exit();
+            } else {
 				$this->mark_flagged( $comment_id );
-				$this->cond_die( $this->errors->get_error_message( 'thank_you_message' ) );
+				$return = array();
+				$return[ 'code' ] = 'thank_you_message';
+                $return[ 'errors' ] = false;
+                wp_send_json( $return );
+                exit();
 			}
 			
 		}
@@ -342,7 +359,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
 
 			if ( $this->_auto_init ) {
-                add_filter( 'comment_text', array( &$this, 'add_flagging_link_last_comment' ), 15, 2 );
+                add_filter( 'comment_text', array( &$this, 'add_flagging_link_comment' ), 15, 2 );
             }
 				
 			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
@@ -455,34 +472,12 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 */
 		public function mark_flagged( $comment_id ) {
 			$data = array();
-			if( isset( $_COOKIE[ TEST_COOKIE ] ) ) {
-				if ( isset( $_COOKIE[ $this->_storagecookie ] ) ) {
-					$data = $this->unserialize_cookie( $_COOKIE[ $this->_storagecookie ] );
-					if ( ! isset( $data[ $comment_id ] ) )
-						$data[ $comment_id ] = 0;
-					$data[ $comment_id ]++;
-					$cookie = $this->serialize_cookie( $data );
-					@setcookie( $this->_storagecookie, $cookie, time()+$this->cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-					if ( SITECOOKIEPATH != COOKIEPATH )
-						@setcookie( $this->_storagecookie, $cookie, time()+$this->cookie_lifetime, SITECOOKIEPATH, COOKIE_DOMAIN);
-				} else {
-					if ( ! isset( $data[ $comment_id ] ) )
-						$data[ $comment_id ] = 0;
-					$data[ $comment_id ]++;
-					$cookie = $this->serialize_cookie( $data );
-					@setcookie( $this->_storagecookie, $cookie, time()+$this->cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
-					if ( SITECOOKIEPATH != COOKIEPATH )
-						@setcookie( $this->_storagecookie, $cookie, time()+$this->cookie_lifetime, SITECOOKIEPATH, COOKIE_DOMAIN);
-				}
-			}
+			
 			// in case we don't have cookies. fall back to transients, block based on IP, shorter timeout to keep mem usage low and don't lock out whole companies
-			$transient = get_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ) );
+			$transient = get_transient( md5( $this->_storagecookie . $comment_id .$_SERVER['REMOTE_ADDR'] ) );
 			if ( !$transient ) {
-				set_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ), array( $comment_id => 1), $this->transient_lifetime );
-			} else {
-				$transient[ $comment_id ]++;
-				set_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ), $transient, $this->transient_lifetime );
-			}
+				set_transient( md5( $this->_storagecookie . $comment_id .$_SERVER['REMOTE_ADDR'] ), array( $comment_id => 1), $this->transient_lifetime );
+			} 
 
 				
 			$threshold = (int) get_option( $this->_plugin_prefix . '_threshold' );
