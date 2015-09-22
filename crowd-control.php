@@ -83,10 +83,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 		}
 
-		
-
-		
-
 		public function action_enqueue_scripts() {
 
 			// Use home_url() if domain mapped to avoid cross-domain issues
@@ -138,8 +134,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			
 		}
 		
-		
-		
 		/*
 		 * Callback function to add the report counter to comments screen. Remove action manage_edit-comments_columns if not desired
 		 */
@@ -175,8 +169,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			$this->comment_ids[] = $comment->comment_ID;
 			return apply_filters( 'safe_report_comments_comment_reply_link', $comment_reply_link );
 		}
-		
-		
 		
 		public function admin_notification( $comment_id ) {
     		if ( ! $this->is_admin_notification_enabled() ) return;
@@ -411,7 +403,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			return apply_filters( 'safe_report_comments_flagging_link', '
 			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a></span>' );
 			
-			
 		}
 		
 		private function is_admin() {
@@ -445,21 +436,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				$enabled = false;
 			return $enabled;
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-
-		
-		
-		
-		
-		
 		
 		/* 
 		 * Callback function to handle custom column. remove action manage_comments_custom_column if not desired
@@ -544,8 +520,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			}
 		}
 		
-		
-		
 		/*
 		 * Print a notification / error msg
 		 */
@@ -566,13 +540,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
     		$text = __( 'Report comment', 'crowd-control' );
 			echo $this->get_flagging_link( $comment_id='', $result_id='', $text );
 		}
-		
-		
-		
-		
-		
-		
-		
+
 		/*
 		 * Helper functions to (un)/serialize cookie values
 		 */
