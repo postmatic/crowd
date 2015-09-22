@@ -197,15 +197,10 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			
 			// in case we don't have cookies. fall back to transients, block based on IP/User Agent
 			if ( $transient = get_transient( md5( $this->_storagecookie . $_SERVER['REMOTE_ADDR'] ) ) ) {
-				if 	( isset( $transient[ $comment_id ]
-					// check if no cookie and transient is set
-					 ( !isset( $_COOKIE[ TEST_COOKIE ] ) && isset( $transient[ $comment_id ] ) ) ||
-					// or check if cookies are enabled and comment is not flagged but transients show a relatively high number and assume fraud 
-					 ( isset( $_COOKIE[ TEST_COOKIE ] )  && isset( $transient[ $comment_id ] ) && $transient[ $comment_id ] >= $this->no_cookie_grace )
-					) {
-						return true;
-				}
-			}
+				if 	( isset( $transient[ $comment_id ] ) && $transient[ $comment_id ] >= $this->no_cookie_grace ) {
+    			    return true;	
+                }
+            }
 			return false;
 		}
 		
