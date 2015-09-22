@@ -24,9 +24,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		private $_storagecookie = 'sfrc_flags';
 		
 		private $errors;
-		
-		private $comment_ids = array();
-		
+				
 		public $plugin_url = false;
 		
 		// amount of possible attempts transient hits per comment before a COOKIE enabled negative check is considered invalid
@@ -144,15 +142,9 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		
 		public function add_flagging_link_last_comment( $comment_text, $comment = '' ) {
     		if ( $this->is_admin() && $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
-    		global $wpdb, $comment_depth;
-    		$max_depth = (int)get_option( 'thread_comments_depth', 1 );
-
     		
-            if ( $max_depth == $comment_depth ) {
-        		$html = $comment_text . sprintf(  '<div class="reply"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">%3$s</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ) );
-                return $html;
-    		}
-    		return $comment_text;
+            $html = $comment_text . sprintf(  '<div class="reply"><span class="pmcc-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">%3$s</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ) );
+    		return $html;
 		}
 		
 		/*
@@ -162,11 +154,11 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 */
 		public function add_flagging_link( $comment_reply_link, $args = array(), $comment, $post ) {
     		if ( $this->is_admin() && $this->already_flagged( $comment->comment_ID ) ) return $comment_reply_link;
+    		
 			if ( !preg_match_all( '#^(.*)(<a.+class=["|\']comment-(reply|login)-link["|\'][^>]+>)(.+)(</a>)(.*)$#msiU', $comment_reply_link, $matches ) ) 
 				return '<!-- safe-comments add_flagging_link not matching -->' . $comment_reply_link;
 		
 			$comment_reply_link =  $matches[1][0] . $matches[2][0] . $matches[4][0] . $matches[5][0] . '<span class="safe-comments-report-link">' . $this->get_flagging_link( $comment->comment_ID, $post->ID ) . '</span>' . $matches[6][0];
-			$this->comment_ids[] = $comment->comment_ID;
 			return apply_filters( 'safe_report_comments_comment_reply_link', $comment_reply_link );
 		}
 		
@@ -350,7 +342,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
 
 			if ( $this->_auto_init ) {
-    			add_filter( 'comment_reply_link', array( &$this, 'add_flagging_link' ), 15, 4 );
                 add_filter( 'comment_text', array( &$this, 'add_flagging_link_last_comment' ), 15, 2 );
             }
 				
