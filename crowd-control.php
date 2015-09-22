@@ -17,7 +17,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 	class Crowd_Control {
 
-		private $_plugin_prefix = 'pmtcc';
+		private $_plugin_prefix = 'pmcc';
 		private $_admin_notices = array();
 		private $_nonce_key = 'flag_comment_nonce';
 		private $_auto_init = true;
