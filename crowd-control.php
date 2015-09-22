@@ -473,7 +473,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				return __( $this->already_flagged_note );
 			
 			return apply_filters( 'safe_report_comments_flagging_link', '
-			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a></span>' );
+			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a></span>' );
 			
 			
 		}
@@ -508,7 +508,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
     		
             if ( $max_depth == $comment_depth ) {
-        		$html = $comment_text . sprintf(  '<div class="reply"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">Report comment</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID );
+        		$html = $comment_text . sprintf(  '<div class="reply"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">Report comment</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID );
                 return $html;
     		}
     		return $comment_text;
