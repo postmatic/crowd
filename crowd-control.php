@@ -254,7 +254,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		public function backend_init() {
 			do_action( 'safe_report_comments_backend_init' );
 
-			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Allow comment flagging', 'crowd-control' ), array( $this, 'comment_flag_enable' ), 'discussion', 'default' );
+			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Enable Crowd Control moderation', 'crowd-control' ), array( $this, 'comment_flag_enable' ), 'discussion', 'default' );
 			register_setting( 'discussion', $this->_plugin_prefix . '_enabled' );
 			
 			if ( ! $this->is_enabled() )
@@ -264,7 +264,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
             add_settings_field( $this->_plugin_prefix . '_admin_notification', __( 'Administrator notifications', 'crowd-control' ), array( $this, 'comment_admin_notification_setting' ), 'discussion', 'default' );
             register_setting( 'discussion', $this->_plugin_prefix . '_admin_notification' );
 
-			add_settings_field( $this->_plugin_prefix . '_threshold', __( 'Flagging threshold', 'crowd-control' ), array( $this, 'comment_flag_threshold' ), 'discussion', 'default' );
+			add_settings_field( $this->_plugin_prefix . '_threshold', __( 'Crowd Control threshold', 'crowd-control' ), array( $this, 'comment_flag_threshold' ), 'discussion', 'default' );
 			register_setting( 'discussion', $this->_plugin_prefix . '_threshold', array( $this, 'check_threshold' ) );
 			add_filter('manage_edit-comments_columns', array( $this, 'add_comment_reported_column' ) );
 			add_action('manage_comments_custom_column', array( $this, 'manage_comment_reported_column' ), 10, 2);
@@ -339,7 +339,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			?>
 			<label for="<?php echo $this->_plugin_prefix; ?>_admin_notification">
 				<input name="<?php echo $this->_plugin_prefix; ?>_admin_notification" id="<?php echo $this->_plugin_prefix; ?>_admin_notification" type="checkbox" value="1" <?php checked( true, $enabled ); ?>  />   
-				<?php _e( "Allow administrators to receive an email when a comment has reached a threshold.", 'crowd-control' ); ?>
+				<?php _e( "Send administrators an email when the crowd has sent a comment to moderation.", 'crowd-control' ); ?>
 			</label>
 			<?php
 		}
@@ -359,7 +359,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			?>
 			<label for="<?php echo $this->_plugin_prefix; ?>_enabled">
 				<input name="<?php echo $this->_plugin_prefix; ?>_enabled" id="<?php echo $this->_plugin_prefix; ?>_enabled" type="checkbox" value="1" <?php checked( true, $enabled ); ?> />   
-				<?php _e( "Allow your visitors to flag a comment as inappropriate.", 'crowd-control' ); ?>
+				<?php _e( "Let site users mark comments as inappropriate.", 'crowd-control' ); ?>
 			</label>
 			<?php
 		}
@@ -379,7 +379,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			?>
 			<label for="<?php echo $this->_plugin_prefix; ?>_threshold">
 				<input size="2" name="<?php echo $this->_plugin_prefix; ?>_threshold" id="<?php echo $this->_plugin_prefix; ?>_threshold" type="text" value="<?php echo $threshold; ?>" />   
-				<?php _e( "Amount of user reports needed to send a comment to moderation?", 'crowd-control' ); ?>
+				<?php _e( "How many reports until a comment gets sent to moderation?", 'crowd-control' ); ?>
 			</label>
 			<?php
 		}
