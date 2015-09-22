@@ -27,16 +27,17 @@ function crowd_control_comments_flag_comment( comment_id, nonce, result_id ) {
 	
 	/* Don't Allow Double Reporting */
 	if ( 'true' == readCookie( 'cc_report_' + comment_id ) ) {
+    	alert( pmcc_ajax.errors.already_flagged_message );
         return false;	
     }
 	
 	jQuery.post( 
-		SafeCommentsAjax.ajaxurl,
+		pmcc_ajax.ajaxurl,
 		{
 			comment_id : comment_id,
 			sc_nonce : nonce,
 			result_id : result_id,
-			action : 'safe_report_comments_flag_comment',
+			action : 'pmcc_report_comments_flag_comment',
 			xhrFields: {
 				withCredentials: true
 			}

@@ -23,27 +23,48 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		private $_auto_init = true;
 		private $_storagecookie = 'sfrc_flags';
 		
+		private $errors;
+		
 		private $comment_ids = array();
 		
 		public $plugin_url = false;
-		
-		public $thank_you_message = 'Reported.';
-		public $invalid_nonce_message = 'It seems you already reported this comment. <!-- nonce invalid -->';
-		public $invalid_values_message = 'Cheating huh? <!-- invalid values -->';
-		public $already_flagged_message = 'It seems you already reported this comment. <!-- already flagged -->';
-		public $already_flagged_note = '<!-- already flagged -->'; // displayed instead of the report link when a comment was flagged. 
-		
-		public $filter_vars = array( 'thank_you_message', 'invalid_nonce_message', 'invalid_values_message', 'already_flagged_message', 'already_flagged_note' );
 		
 		// amount of possible attempts transient hits per comment before a COOKIE enabled negative check is considered invalid
 		// transient hits will be counted up per ip any time a user flags a comment
 		// this number should be always lower than your threshold to avoid manipulation
 		public $no_cookie_grace = 3; 
-		public $cookie_lifetime = 604800; // lifetime of the cookie ( 1 week ). After this duration a user can report a comment again
 		public $transient_lifetime = 86400; // lifetime of fallback transients. lower to keep things usable and c
 		
 		public function __construct( $auto_init=true ) {
-
+            /* Initialize Errors */
+            $this->errors = new WP_Error();
+    		$this->errors->add( 'thank_you_message', __( 'Reported.', 'crowd-control' ) );
+    		$this->errors->add( 'invalid_nonce_message', __( 'It seems you already reported this comment.', 'crowd-control' ) );
+    		$this->errors->add( 'invalid_values_message', __( 'Cheating huh?', 'crowd-control' ) );
+    		$this->errors->add( 'already_flagged_message', __( 'It seems you already reported this comment.', 'crowd-conrol' ) );
+    		$this->errors->add( 'already_flagged_note', __( 'Comment has been flagged already.', 'crowd-control' ) );
+    		
+    		/* Allow others to customize messages */
+    		$error_codes = $this->errors->get_error_codes();
+    		foreach( $error_codes as $index => $error_code ) {
+        		$message = $this->errors->get_error_message( $error_code );
+        		/**
+    		* Filter: pmcc_errors
+    		*
+    		* Modify error message
+    		*
+    		* @since 1.0.0
+    		*
+    		* @param string Error 
+    		* @param string Error code
+    		*/
+        		$new_message = apply_filters( 'pmcc_errors', $message, $error_code );
+        		if ( $new_message !== $message ) {
+            	    $this->errors->remove( $error_code );
+            	    $this->errors->add( $error_code, $new_message );	
+                }
+            }
+    				
 			$this->_admin_notices = get_transient( $this->_plugin_prefix . '_notices' );
 			if ( !is_array( $this->_admin_notices ) ) 
 				$this->_admin_notices = array();
@@ -56,11 +77,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				add_action( 'admin_init', array( $this, 'backend_init' ) );
 			}
 			add_action( 'comment_unapproved_to_approved', array( $this, 'mark_comment_moderated' ), 10, 1 );
-			
-			// apply some filters to easily alter the frontend messages 
-			// add_filter( 'safe_report_comments_thank_you_message', 'alter_message' ); // this or similar will do the job
-			foreach( $this->filter_vars as $var )
-				$this->{$var} = apply_filters( 'safe_report_comments_' . $var , $this->{$var} );
 		}
 
 		public function __destruct() {
@@ -107,8 +123,8 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 			do_action( 'safe_report_comments_frontend_init' );
 			
-			add_action( 'wp_ajax_safe_report_comments_flag_comment', array( $this, 'flag_comment' ) );
-			add_action( 'wp_ajax_nopriv_safe_report_comments_flag_comment', array( $this, 'flag_comment' ) );
+			add_action( 'wp_ajax_pmcc_report_comments_flag_comment', array( $this, 'flag_comment' ) );
+			add_action( 'wp_ajax_nopriv_pmcc_report_comments_flag_comment', array( $this, 'flag_comment' ) );
 			
 			add_action( 'safe_report_comments_mark_flagged', array( $this, 'admin_notification' ) );
 			
@@ -135,7 +151,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			$ajaxurl = apply_filters( 'safe_report_comments_ajax_url', $ajaxurl );
 
 			wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ) );
-			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'SafeCommentsAjax', array( 'ajaxurl' => $ajaxurl ) ); // slightly dirty but needed due to possible problems with mapped domains
+			
+			/* Localize ajaxurl and error messages */
+			$localize_script_vars = array(
+    			'ajaxurl' => $ajaxurl,
+    			'errors' => array()
+            );
+            $error_codes = $this->errors->get_error_codes();
+            foreach( $error_codes as $index => $error_code ) {
+        		$localize_script_vars[ 'errors' ][ $error_code ] = $this->errors->get_error_message( $error_code );
+            }
+			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'pmcc_ajax', $localize_script_vars ); // slightly dirty but needed due to possible problems with mapped domains
 		}
 
 		public function add_test_cookie() {
@@ -416,19 +442,19 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 */
 		public function flag_comment() {		
 			if ( isset( $_REQUEST[ 'comment_id' ] ) && (int) $_REQUEST[ 'comment_id' ] != $_REQUEST[ 'comment_id' ] || empty( $_REQUEST[ 'comment_id' ] ) )
-				$this->cond_die( __( $this->invalid_values_message ) );
+				$this->cond_die( $this->errors->get_error_message( 'invalid_values_message' ) );
 			
 			$comment_id = (int) $_REQUEST[ 'comment_id' ];
 			if ( $this->already_flagged( $comment_id ) )
-				$this->cond_die( __( $this->already_flagged_message ) );
+				$this->cond_die( $this->errors->get_error_message( 'already_flagged_message' ) );
 				
 			$nonce = isset( $_REQUEST[ 'sc_nonce' ] ) ? $_REQUEST[ 'sc_nonce' ] : '';
 			// checking if nonces help
 			if ( ! wp_verify_nonce( $nonce, $this->_plugin_prefix . '_' . $this->_nonce_key ) ) 
-				$this->cond_die( __( $this->invalid_nonce_message ) );
+				$this->cond_die( $this->errors->get_error_message( 'invalid_nonce_message' ) );
 			else {
 				$this->mark_flagged( $comment_id );
-				$this->cond_die( __( $this->thank_you_message ) );
+				$this->cond_die( $this->errors->get_error_message( 'thank_you_message' ) );
 			}
 			
 		}
@@ -473,7 +499,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			);
 			
 			if ( $this->already_flagged( $comment_id ) )
-				return __( $this->already_flagged_note );
+				return $this->errors->get_error_message( 'already_flagged_note' );
 			
 			return apply_filters( 'safe_report_comments_flagging_link', '
 			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a></span>' );
