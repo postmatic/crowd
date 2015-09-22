@@ -116,7 +116,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 			if ( $this->_auto_init ) {
     			add_filter( 'comment_reply_link', array( &$this, 'add_flagging_link' ), 15, 4 );
-    			add_filter( 'comment_text', array( &$this, 'add_flagging_link_last_comment' ), 15, 2 );
+                add_filter( 'comment_text', array( &$this, 'add_flagging_link_last_comment' ), 15, 2 );
             }
 				
 			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
@@ -440,10 +440,13 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		/* 
 		 * Output Link to report a comment
 		 */
-		public function get_flagging_link( $comment_id='', $result_id='', $text='Report' ) {
+		public function get_flagging_link( $comment_id='', $result_id='', $text='' ) {
 			global $in_comment_loop;
+			if ( empty( $text ) ) {
+    		    $text = __( 'Report', 'crowd-control' );	
+            }
 			if ( empty( $comment_id ) && !$in_comment_loop ) {
-				return __( 'Wrong usage of print_flagging_link().' );
+				return __( 'Wrong usage of print_flagging_link().', 'crowd-control' );
 			}
 			if ( empty( $comment_id ) ) {
 				$comment_id = get_comment_ID();
@@ -451,7 +454,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			else {
 				$comment_id = (int) $comment_id;
 				if ( !get_comment( $comment_id ) ) {
-					return __( 'This comment does not exist.' );
+					return __( 'This comment does not exist.', 'crowd-control' );
 				}
 			}
 			if ( empty( $result_id ) )
@@ -479,6 +482,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		}
 		
 		private function is_admin() {
+    		return false;
     	    if ( ( current_user_can( 'manage_network' ) || current_user_can( 'manage_options' ) || current_user_can( 'moderate_comments' ) ) ) {	
         	    return true;
             } else {
@@ -508,7 +512,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
     		
             if ( $max_depth == $comment_depth ) {
-        		$html = $comment_text . sprintf(  '<div class="reply"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">Report comment</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID );
+        		$html = $comment_text . sprintf(  '<div class="reply"><span class="safe-comments-report-link"><span id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'ced666025b\', \'%2$d\');">%3$s</a></span></span></div>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ) );
                 return $html;
     		}
     		return $comment_text;
@@ -541,6 +545,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		
 	}
 }
-
-if ( !defined( 'no_autostart_safe_report_comments' ) )
-	$safe_report_comments = new Crowd_Control;
+add_action( 'plugins_loaded', 'pmcc_activate' );
+function pmcc_activate() {
+    $safe_report_comments = new Crowd_Control( true );
+}

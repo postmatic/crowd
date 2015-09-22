@@ -26,7 +26,7 @@ function crowd_control_comments_flag_comment( comment_id, nonce, result_id ) {
     }
 	
 	/* Don't Allow Double Reporting */
-	if ( 'true' == readCookie( 'cc_report_' comment_id ) ) {
+	if ( 'true' == readCookie( 'cc_report_' + comment_id ) ) {
         return false;	
     }
 	
