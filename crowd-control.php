@@ -492,7 +492,6 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		}
 		
 		private function is_admin() {
-    		return false;
     	    if ( ( current_user_can( 'manage_network' ) || current_user_can( 'manage_options' ) || current_user_can( 'moderate_comments' ) ) ) {	
         	    return true;
             } else {
