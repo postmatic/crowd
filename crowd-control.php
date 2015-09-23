@@ -215,10 +215,10 @@ if ( !class_exists( "Crowd_Control" ) ) {
     		$comment = get_comment( $comment_id );
     		
     		$admin_email = get_option( 'admin_email' );
-    		$subject = sprintf( '%s - Comment ID %d - %s', esc_html( get_bloginfo( 'site' ) ), absint( $comment_id ), esc_html__( 'has been flagged by Crowd Control and sent back to moderation', 'crowd-control' ) );
+    		$subject = sprintf( __( '%s - Comment User %s - %s', 'crowd-control' ), esc_html( get_bloginfo( 'site' ) ), esc_html( $comment->comment_author ), esc_html__( 'has been flagged by Crowd Control and sent back to moderation', 'crowd-control' ) );
     		$headers = sprintf( 'From: %s <%s>', esc_html( get_bloginfo( 'site' ) ), get_option( 'admin_email' ) ) . "\r\n\r\n";
-    		$message = 'Users of your site have flagged a comment and it has been sent to moderation.' . "\r\n\r\n";
-    		$message .= 'You are welcome to view the comment yourself at your earliest convenience.' . "\r\n\r\n";
+    		$message = __( 'Users of your site have flagged a comment and it has been sent to moderation.', 'crowd-control' ) . "\r\n\r\n";
+    		$message .= __( 'You are welcome to view the comment yourself at your earliest convenience.', 'crowd-control' ). "\r\n\r\n";
     		$message .= esc_url_raw( add_query_arg( array( 'action' => 'editcomment', 'c' => absint( $comment_id ) ), admin_url( 'comment.php' ) ) );
     		wp_mail( $admin_email, $subject, $message, $headers );
         }
