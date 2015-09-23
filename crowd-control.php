@@ -165,6 +165,30 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 
 		/**
+		 * wp_header - Add minor front end styles
+		 *
+		 * @since 1.0.1
+		 *
+		 */
+		public function wp_header() {
+			?>
+			<style type="text/css">
+				.pmcc-comments-report-link {
+					font: 10px sans-serif;
+					float: right;
+				}
+				.pmcc-comments-report-link a {
+					color: #9C3E3E;
+					padding: 2px 5px;
+					margin: 2px 0 0 5px;
+					border: 1px solid #ddd;
+					display:block;"
+				}
+			</style>
+			<?php
+		}
+
+		/**
 		 * admin_header - Add reported column to admin
 		 *
 		 * Callback function to add the report counter to comments screen. Remove action manage_edit-comments_columns if not desired
@@ -195,7 +219,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 			$nonce = wp_create_nonce( 'pmcc_comment_' . $comment->comment_ID );
 
-			$html = sprintf( '<span style="font: 10px sans-serif; float: right;" class="pmcc-comments-report-link" id="%1$d"><a style="color: #9C3E3E;padding: 2px 5px; margin: 2px 0 0 5px; border: 1px solid #ddd; display:block;" class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'%4$s\', \'%2$d\');">%3$s</a></span>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ), $nonce ) . $comment_text;
+			$html = sprintf( '<span class="pmcc-comments-report-link" id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'%4$s\', \'%2$d\');">%3$s</a></span>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ), $nonce ) . $comment_text;
 			return $html;
 		}
 
@@ -472,6 +496,8 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 			add_action( 'wp_ajax_pmcc_report_comments_flag_comment', array( $this, 'flag_comment' ) );
 			add_action( 'wp_ajax_nopriv_pmcc_report_comments_flag_comment', array( $this, 'flag_comment' ) );
+
+			add_action( 'wp_head', array( $this, 'wp_header' ) );
 
 			add_action( 'pmcc_report_comments_mark_flagged', array( $this, 'admin_notification' ) );
 
