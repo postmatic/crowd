@@ -4,7 +4,7 @@ Tags: moderation, comment moderation, reporting, inappropriate, flagging, flag, 
 Donate link: https://gopostmatic.com
 Requires at least: 3.3
 Tested up to: 4.3
-Stable tag: 1.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,7 @@ Crowd Control gives your users the ability to report comments as inappropriate w
 
 == Changelog ==
 
-1.0
+= 1.0.0 =
 
-- Initial release. Based on [Safe Report Comments by Automattic](https://wordpress.org/plugins/safe-report-comments/)... brought up to date, improved, bugs all squashed, cookies added, internationalized, and integrated with Epoch and Postmatic.
+* Released 2015-09-22
+* Initial release. Based on [Safe Report Comments by Automattic](https://wordpress.org/plugins/safe-report-comments/)... brought up to date, improved, bugs all squashed, cookies added, internationalized, and integrated with Epoch and Postmatic.
