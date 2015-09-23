@@ -215,7 +215,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
     		$comment = get_comment( $comment_id );
     		
     		$admin_email = get_option( 'admin_email' );
-    		$subject = sprintf( __( '%s - Comment User %s - %s', 'crowd-control' ), esc_html( get_bloginfo( 'site' ) ), esc_html( $comment->comment_author ), esc_html__( 'has been flagged by Crowd Control and sent back to moderation', 'crowd-control' ) );
+    		$subject = sprintf( __( 'A comment by %s %s', 'crowd-control' ), esc_html( $comment->comment_author ), esc_html__( 'has been flagged by Crowd Control and sent back to moderation', 'crowd-control' ) );
     		$headers = sprintf( 'From: %s <%s>', esc_html( get_bloginfo( 'site' ) ), get_option( 'admin_email' ) ) . "\r\n\r\n";
     		$message = __( 'Users of your site have flagged a comment and it has been sent to moderation.', 'crowd-control' ) . "\r\n\r\n";
     		$message .= __( 'You are welcome to view the comment yourself at your earliest convenience.', 'crowd-control' ). "\r\n\r\n";
