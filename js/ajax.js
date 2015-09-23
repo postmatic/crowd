@@ -46,12 +46,7 @@ function crowd_control_comments_flag_comment( comment_id, nonce, result_id ) {
     		if ( !data.errors ) {
         		createCookie( 'cc_report_' + comment_id, 'true', 30 );
         		$parent = jQuery( '#comment-' + comment_id );
-        		$child = $parent.find( '.pmcc-comments-report-link:first' ).html( pmcc_ajax.errors[ data.code ] );
-        		setTimeout( function() {
-            		$child.fadeOut( 'slow', function() {
-                		//todo maybe do some ajax and see if flagged here for Epoch
-                    } );
-                }, 2000 );
+        		$child = $parent.find( '.pmcc-comments-report-link:first' ).fadeOut( 'fast' );
             } else {
                 alert( pmcc_ajax.errors[ data.code ] );
             }
