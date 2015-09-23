@@ -24,10 +24,9 @@ Crowd Control gives your users the ability to report comments as inappropriate w
 
 == Screenshots ==
 
-1. Simple activation via discussion settings
-2. Amount of reports per comment is shown in comments administration screen
-3. Fits well within most themes without any further action.
-4. Ajax feedback right in place where available.
+1. Simple settings on the Setings > Discussion screen.
+2. A small report box is placed on your comment template allowing visitors to report a comment.
+3. A new column is added to the comment moderation screen showing the number of times each comment has been reported. Comments which have been reported more than the allowed number of times (configured by you) are automatically sent to moderation.
 
 == Changelog ==
 
