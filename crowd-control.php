@@ -547,6 +547,15 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			if ( $this->already_flagged( $comment_id ) )
 				return $this->errors->get_error_message( 'already_flagged_note' );
 			
+			 /**
+    		* Filter: pmcc_report_comments_flagging_link
+    		*
+    		* Modify report HTML
+    		*
+    		* @since 1.0.0
+    		*
+    		* @param string flagging link 
+    		*/
 			return apply_filters( 'pmcc_report_comments_flagging_link', '
 			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'' . $comment_id . '\', \'' . esc_html( $nonce ) . '\', \'' . absint( $result_id ) . '\');">' . esc_html( $text ) . '</a></span>' );
 			/***
