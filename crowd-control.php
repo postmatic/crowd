@@ -46,7 +46,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
     		$error_codes = $this->errors->get_error_codes();
     		foreach( $error_codes as $index => $error_code ) {
         		$message = $this->errors->get_error_message( $error_code );
-        		/**
+            /**
     		* Filter: pmcc_errors
     		*
     		* Modify error message
@@ -98,8 +98,17 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				$ajaxurl = home_url( '/wp-admin/admin-ajax.php' );
 			else
 				$ajaxurl = admin_url( 'admin-ajax.php' );
-
-			$ajaxurl = apply_filters( 'safe_report_comments_ajax_url', $ajaxurl );
+            
+            /**
+    		* Filter: pmcc_report_comments_ajax_url
+    		*
+    		* Ajax URL
+    		*
+    		* @since 1.0.0
+    		*
+    		* @param string ajax URL 
+    		*/
+			$ajaxurl = apply_filters( 'pmcc_report_comments_ajax_url', $ajaxurl );
 
 			wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ) );
 			
@@ -189,6 +198,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
             $html = sprintf(  '<span style="font: 10px sans-serif; float: right;" class="pmcc-comments-report-link" id="%1$d"><a style="color: #9C3E3E;padding: 2px 5px; margin: 2px 0 0 5px; border: 1px solid #ddd; display:block;" class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'%4$s\', \'%2$d\');">%3$s</a></span>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ), $nonce ) . $comment_text;
     		return $html;
 		}
+<<<<<<< HEAD
 		
 		/**
     	 * admin_notification - Alert admin via email
@@ -200,6 +210,9 @@ if ( !class_exists( "Crowd_Control" ) ) {
     	 * @param int $comment_id
     	 *
     	 */
+=======
+				
+>>>>>>> Changing filter names
 		public function admin_notification( $comment_id ) {
     		if ( ! $this->is_admin_notification_enabled() ) return;
     		
@@ -502,10 +515,29 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				}
 			}
 			if ( empty( $result_id ) )
-				$result_id = 'safe-comments-result-' . $comment_id;
-				
-			$result_id = apply_filters( 'safe_report_comments_result_id', $result_id );
-			$text = apply_filters( 'safe_report_comments_flagging_link_text', $text );
+				$result_id = 'pmcc-comments-result-' . $comment_id;
+            
+            /**
+    		* Filter: pmcc_report_comments_result_id
+    		*
+    		* Result ID
+    		*
+    		* @since 1.0.0
+    		*
+    		* @param int $result_id
+    		*/
+			$result_id = apply_filters( 'pmcc_report_comments_result_id', $result_id );
+			
+			/***
+    		* Filter: pmcc_report_comments_flagging_link_text
+    		*
+    		* Result ID
+    		*
+    		* @since 1.0.0
+    		*
+    		* @param string $text
+    		*/
+			$text = apply_filters( 'pmcc_report_comments_flagging_link_text', $text );
 			
 			$nonce = wp_create_nonce( $this->_plugin_prefix . '_' . $this->_nonce_key );
 			$params = array( 
@@ -519,8 +551,22 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			if ( $this->already_flagged( $comment_id ) )
 				return $this->errors->get_error_message( 'already_flagged_note' );
 			
+<<<<<<< HEAD
 			return apply_filters( 'safe_report_comments_flagging_link', '
 			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'' . $comment_id . '\', \'' . esc_html( $nonce ) . '\', \'' . absint( $result_id ) . '\');">' . esc_html( $text ) . '</a></span>' );
+=======
+			/***
+    		* Filter: pmcc_report_comments_flagging_link
+    		*
+    		* Result ID
+    		*
+    		* @since 1.0.0
+    		*
+    		* @param string $html Link
+    		*/
+			return apply_filters( 'pmcc_report_comments_flagging_link', '
+			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a></span>' );
+>>>>>>> Changing filter names
 			
 		}
 		
@@ -667,6 +713,16 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			$already_moderated = get_comment_meta( $comment_id, $this->_plugin_prefix . '_moderated', true );
 			if ( true == $already_reported && true == $already_moderated ) {
 				// But maybe the boss wants to allow comments to be reflagged
+				
+				/***
+    		* Filter: safe_report_comments_allow_moderated_to_be_reflagged
+    		*
+    		* Result ID
+    		*
+    		* @since 1.0.0
+    		*
+    		* @param bool true reflag, false if not
+    		*/
 				if ( ! apply_filters( 'safe_report_comments_allow_moderated_to_be_reflagged', false ) ) 
 					return;
 			}
@@ -723,5 +779,5 @@ if ( !class_exists( "Crowd_Control" ) ) {
 }
 add_action( 'plugins_loaded', 'pmcc_activate' );
 function pmcc_activate() {
-    $safe_report_comments = new Crowd_Control( true );
+    new Crowd_Control( true );
 }
