@@ -483,7 +483,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
             		*
             		* @param bool true flag, false if not
             		*/
-    		    	$admin_can_be_flagged = apply_filters( 'pmcc_admin_marked_flagged', false ):
+    		    	$admin_can_be_flagged = apply_filters( 'pmcc_admin_marked_flagged', false );
             }
 			if ( $this->_auto_init && !$admin_can_be_flagged ) {
                 add_filter( 'comment_text', array( &$this, 'add_flagging_link_comment' ), 15, 2 );
@@ -754,7 +754,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
             		*
             		* @param bool true flag, false if not
             		*/
-    		    	$admin_can_be_flagged = apply_filters( 'pmcc_admin_marked_flagged', false ):
+    		    	$admin_can_be_flagged = apply_filters( 'pmcc_admin_marked_flagged', false );
             }
 
 			if ( $current_reports >= $threshold && !$admin_can_be_flagged  ) {
