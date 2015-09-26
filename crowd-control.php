@@ -4,7 +4,7 @@ Plugin Name: Crowd Control by Postmatic
 Plugin Script: crowd-control.php
 Plugin URI: http://wordpress.org/extend/plugins/crowd-control/
 Description: Crowd Control gives your users the ability to report comments as inappropriate with a single click. If a comment gets flagged multiple times it'll be removed from the post and marked as pending moderation. We'll even send you an email to let you know. Now you can still go away on vacation and rest assured the trolls won't overrun your site.
-Version: 1.0.0
+Version: 1.0.1
 Author: Ronald Huereca, Jason Lemieux
 Author URI: https://gopostmatic.com/
 Text Domain: crowd-control
