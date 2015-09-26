@@ -470,8 +470,22 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			add_action( 'pmcc_report_comments_mark_flagged', array( $this, 'admin_notification' ) );
 			
 			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
-
-			if ( $this->_auto_init ) {
+            
+            
+            $admin_can_be_flagged = false;
+			if ( $this->admin() ) {
+    			    /***
+            		* Filter: pmcc_admin_marked_flagged
+            		*
+            		* Whether admins flagged
+            		*
+            		* @since 1.0.1
+            		*
+            		* @param bool true flag, false if not
+            		*/
+    		    	$admin_can_be_flagged = apply_filters( 'pmcc_admin_marked_flagged', false ):
+            }
+			if ( $this->_auto_init && !$admin_can_be_flagged ) {
                 add_filter( 'comment_text', array( &$this, 'add_flagging_link_comment' ), 15, 2 );
             }
 				
