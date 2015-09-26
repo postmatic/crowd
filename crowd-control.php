@@ -22,6 +22,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		private $_nonce_key = 'flag_comment_nonce';
 		private $_auto_init = true;
 		private $_storagecookie = 'pmcc_flags';
+		private $comment_owner = false;
 		
 		private $errors;
 				
@@ -191,7 +192,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
     	 * @returns string $comment_test
     	 */
 		public function add_flagging_link_comment( $comment_text, $comment = '' ) {
-    		if ( $this->is_admin() || $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
+    		if ( $this->is_admin() || $this->already_flagged( $comment->comment_ID )  || $this->is_comment_owner( $comment->comment_ID ) ) return $comment_text;
     		
     		$nonce = wp_create_nonce( 'pmcc_comment_' . $comment->comment_ID );
     		
@@ -473,7 +474,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
             
             
             $admin_can_be_flagged = false;
-			if ( $this->admin() ) {
+			if ( $this->is_admin() ) {
     			    /***
             		* Filter: pmcc_admin_marked_flagged
             		*
@@ -624,6 +625,30 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				$enabled = false;
 			return $enabled;
 		}
+		
+		/**
+    	 * is_comment_owner - if user is comment author
+    	 * 
+    	 * Is the admin notification or not
+    	 *
+    	 * @since 1.0
+    	 *
+    	 * @access public
+    	 *
+    	 * @returns true if yes, false if not
+    	 */
+		public function is_comment_owner( $comment_id ) {
+			if ( $this->is_admin()  ) {
+    		    return true;	
+            }
+            
+            $comment = get_comment( $comment_id );
+            $post = get_post( $comment->comment_post_ID );
+            if ( $comment->user_id == $post->post_author ) {
+                return true;
+            }
+            return false;
+		}
         
          /**
     	 * is_enabled - Is the threshold enabled or not
@@ -719,6 +744,19 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 				
 			$threshold = (int) get_option( $this->_plugin_prefix . '_threshold' );
+			if ( $this->is_comment_owner( $comment_id )  ) {
+    		    $threshold = $threshold * 2;	
+    		     /***
+        		* Filter: pmcc_admin_marked_flagged
+        		*
+        		* Whether admins flagged
+        		*
+        		* @since 1.0.1
+        		*
+        		* @param bool true flag, false if not
+        		*/
+		    	$threshold = apply_filters( 'pmcc_comment_owner_threshold' , $threshold );
+            }
 			$current_reports = get_comment_meta( $comment_id, $this->_plugin_prefix . '_reported', true );
 			$current_reports++;
 			update_comment_meta( $comment_id, $this->_plugin_prefix . '_reported', $current_reports );
