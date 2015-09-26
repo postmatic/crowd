@@ -728,8 +728,22 @@ if ( !class_exists( "Crowd_Control" ) ) {
 				if ( ! apply_filters( 'pmcc_report_comments_allow_moderated_to_be_reflagged', false ) ) 
 					return;
 			}
+			
+			$admin_can_be_flagged = false;
+			if ( $this->admin() ) {
+    			    /***
+            		* Filter: pmcc_admin_marked_flagged
+            		*
+            		* Whether admins flagged
+            		*
+            		* @since 1.0.1
+            		*
+            		* @param bool true flag, false if not
+            		*/
+    		    	$admin_can_be_flagged = apply_filters( 'pmcc_admin_marked_flagged', false ):
+            }
 
-			if ( $current_reports >= $threshold ) {
+			if ( $current_reports >= $threshold && !$admin_can_be_flagged  ) {
 				do_action( 'pmcc_report_comments_mark_flagged', $comment_id );
 				wp_set_comment_status( $comment_id, 'hold' );
 			}
