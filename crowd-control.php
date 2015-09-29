@@ -109,7 +109,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			 */
 			$ajaxurl = apply_filters( 'pmcc_report_comments_ajax_url', $ajaxurl );
 
-			wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ), '20150922', true );
+			wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ), '20150929', true );
 
 			/* Localize ajaxurl and error messages */
 			$localize_script_vars = array(
