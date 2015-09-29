@@ -30,6 +30,13 @@ Crowd Control gives your users the ability to report comments as inappropriate w
 
 == Changelog ==
 
+= 1.0.1 =
+
+* Released 2015-09-29
+* Better positioning of Report link, and we also hide it until you hover over the comment (on desktop only).
+* Authors/Contributors/Editors/Admin comments now need 2x the number of reports before being sent to moderation.
+* Moderation emails are now sent via Postmatic if it is present.
+
 = 1.0.0 =
 
 * Released 2015-09-22

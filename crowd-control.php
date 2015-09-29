@@ -175,14 +175,16 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			<style type="text/css">
 				.pmcc-comments-report-link {
 					font: 10px sans-serif;
-					float: right;
+					display:block;
+					float:right;
+					clear: left;
+					margin-top: 5px;
 				}
 				.pmcc-comments-report-link a {
 					color: #9C3E3E;
 					padding: 2px 5px;
 					margin: 2px 0 0 5px;
 					border: 1px solid #ddd;
-					display:block;"
 				}
 			</style>
 			<?php
@@ -219,7 +221,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 
 			$nonce = wp_create_nonce( 'pmcc_comment_' . $comment->comment_ID );
 
-			$html = sprintf( '<span class="pmcc-comments-report-link" id="%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'%4$s\', \'%2$d\');">%3$s</a></span>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ), $nonce ) . $comment_text;
+			$html = $comment_text . sprintf( '<span class="pmcc-comments-report-link" id="comment-%1$d"><a class="hide-if-no-js" href="javascript:void(0);" onclick="crowd_control_comments_flag_comment( \'%1$d\', \'%4$s\', \'%2$d\');">%3$s</a></span>', $comment->comment_ID, $comment->comment_post_ID, esc_html__( 'Report', 'crowd-control' ), $nonce );
 			return $html;
 		}
 
