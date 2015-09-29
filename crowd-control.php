@@ -177,13 +177,25 @@ if ( !class_exists( "Crowd_Control" ) ) {
 					display:block;
 					float:right;
 					clear: left;
-					margin-top: 5px;
+					margin-top: 10px;
 				}
 				.pmcc-comments-report-link a {
 					color: #9C3E3E;
 					padding: 2px 5px;
 					margin: 2px 0 0 5px;
 					border: 1px solid #ddd;
+				}
+				
+				.pmcc-comments-report-link strong {
+				    color: white;
+				    background: #c0392b;
+				    padding-top: 2px;
+				    border-radius: 7px;
+				    display: block;
+				    width: 15px;
+				    height: 15px;
+				    text-align: center;
+				    margin-right: 10px;
 				}
 			</style>
 			<?php
