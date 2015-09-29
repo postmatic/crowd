@@ -31,15 +31,15 @@ Crowd Control gives your users the ability to report comments as inappropriate w
 == Changelog ==
 
 = 1.0.1 =
-* Released 2015-09-26
-* Admins do not get reporting
-* Post authors get a higher threshold
+
+* Released 2015-09-29
+* Better positioning of Report link.
+* Authors/Contributors/Editors/Admin comments now need 2x the number of reports before being sent to moderation.
+* Moderation emails are now sent via Postmatic if it is present.
 
 = 1.0.0 =
 
 * Released 2015-09-22
 * Initial release. Based on [Safe Report Comments by Automattic](https://wordpress.org/plugins/safe-report-comments/)... brought up to date, improved, bugs all squashed, cookies added, internationalized, and integrated with Epoch and Postmatic.
-== Upgrade Notice ==
 
-= 1.0.1 =
-Better UX for admins and post authors.
+
