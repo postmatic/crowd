@@ -49,9 +49,6 @@ function crowd_control_comments_flag_comment( comment_id, nonce, result_id ) {
         		$child = $parent.find( '.pmcc-comments-report-link:first' ).fadeOut( 'fast', function() {
             		jQuery( this ).html( '<strong>&#x2713;</strong>' );
             		jQuery( this ).fadeIn();
-                }, function() {
-            		jQuery( this ).html( '<strong>&#x2713;</strong>' );
-            		jQuery( this ).fadeIn();
                 } );
             } else {
                 alert( pmcc_ajax.errors[ data.code ] );
