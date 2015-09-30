@@ -4,7 +4,7 @@ Tags: moderation, comment moderation, reporting, inappropriate, flagging, flag, 
 Donate link: https://gopostmatic.com
 Requires at least: 4.0
 Tested up to: 4.3
-Stable tag: 1.0.1
+Stable tag: 1.0.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,11 @@ Crowd Control gives your users the ability to report comments as inappropriate w
 3. A new column is added to the comment moderation screen showing the number of times each comment has been reported. Comments which have been reported more than the allowed number of times (configured by you) are automatically sent to moderation.
 
 == Changelog ==
+
+= 1.0.1.1 =
+
+* Released 2015-09-29
+* Fixed a bug in which reporting a comment would throw a 500 error on certain cache setups.
 
 = 1.0.1 =
 
