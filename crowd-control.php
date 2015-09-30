@@ -826,7 +826,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 			}
 			
 			$admin_can_be_flagged = false;
-			if ( $this->admin() ) {
+			if ( $this->is_admin() ) {
     			    /***
             		* Filter: pmcc_admin_marked_flagged
             		*
