@@ -228,6 +228,7 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 * @returns string $comment_test
 		 */
 		public function add_flagging_link_comment( $comment_text, $comment = '' ) {
+    		if ( !is_object( $comment ) ) return $comment_text;
 			if ( $this->is_admin() || $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
 
 			$nonce = wp_create_nonce( 'pmcc_comment_' . $comment->comment_ID );
