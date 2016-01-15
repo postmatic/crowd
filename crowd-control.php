@@ -228,7 +228,13 @@ if ( !class_exists( "Crowd_Control" ) ) {
 		 * @returns string $comment_test
 		 */
 		public function add_flagging_link_comment( $comment_text, $comment = '' ) {
+    		//Do not show if users must be logged in to comment
+    		if ( get_option( 'comment_registration' ) && !is_user_logged_in() ) return $comment_text;
+    		
+    		//Check to make sure comment is an object
     		if ( !is_object( $comment ) ) return $comment_text;
+    		
+    		//Do not show in admin panel or when comment has already been flagged by user
 			if ( $this->is_admin() || $this->already_flagged( $comment->comment_ID ) ) return $comment_text;
 
 			$nonce = wp_create_nonce( 'pmcc_comment_' . $comment->comment_ID );
