@@ -30,6 +30,13 @@ Crowd Control gives your users the ability to report comments as inappropriate w
 
 == Changelog ==
 
+= 1.1 =
+
+* Nifty new icon.
+* Fixed a bug in which all comments were sent to moderation in certain situations.
+* The report button is not shown to logged-out users if you have 'Users must be logged in to comment' enabled.
+* Fixed errors in the add_flagging_link_comment() method.
+
 = 1.0.1.1 =
 
 * Released 2015-09-29
