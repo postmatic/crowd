@@ -3,8 +3,8 @@ Contributors: postmatic, ronalfy
 Tags: moderation, comment moderation, reporting, inappropriate, flagging, flag, comments, report comments, report, inappropriate, spam
 Donate link: https://gopostmatic.com
 Requires at least: 4.0
-Tested up to: 4.4.2
-Stable tag: 1.1
+Tested up to: 5.2
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,10 @@ Crowd Control gives your users the ability to report comments as inappropriate w
 3. A new column is added to the comment moderation screen showing the number of times each comment has been reported. Comments which have been reported more than the allowed number of times (configured by you) are automatically sent to moderation.
 
 == Changelog ==
+
+= 1.1.1 =
+
+* Compatibilty with WordPress 5.2
 
 = 1.1 =
 
